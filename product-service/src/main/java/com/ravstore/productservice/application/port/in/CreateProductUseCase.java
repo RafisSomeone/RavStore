@@ -4,6 +4,5 @@ import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.domain.Product;
 
 public interface CreateProductUseCase {
-
-    Product createProduct(CreateProductCommand command);
+  Product create(CreateProductCommand command);
 }

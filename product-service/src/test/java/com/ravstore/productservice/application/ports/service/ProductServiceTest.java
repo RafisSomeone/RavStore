@@ -1,10 +1,17 @@
 package com.ravstore.productservice.application.ports.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.ravstore.productservice.application.dto.CreateProductCommand;
+import com.ravstore.productservice.application.dto.ProductDraft;
+import com.ravstore.productservice.application.exception.ProductNotFoundException;
+import com.ravstore.productservice.application.port.out.MetricsService;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.usecase.ProductService;
-import com.ravstore.productservice.domain.Money;
 import com.ravstore.productservice.domain.Product;
+import com.ravstore.productservice.fixtures.ProductFixtures;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,38 +20,51 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Currency;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
-    @Mock
-    private ProductStorage mockStorage;
+  @Mock private ProductStorage mockStorage;
 
-    @Captor
-    private ArgumentCaptor<Product> captor;
+  @Mock private MetricsService mockMetrics;
 
-    @InjectMocks
-    private ProductService productService;
+  @Captor private ArgumentCaptor<ProductDraft> captor;
 
-    @Test
-    void should_create_a_product() {
-        var productName = "mockProduct";
-        var price = new Money(new BigDecimal("1000.99"), Currency.getInstance("USD"));
-        var createProductCommand = new CreateProductCommand(productName, price);
+  @InjectMocks private ProductService productService;
 
-        productService.createProduct(createProductCommand);
+  @Test
+  void should_create_a_product() {
+    var createProductCommand =
+        new CreateProductCommand(ProductFixtures.name(), ProductFixtures.money10USD());
+    when(mockStorage.create(any(ProductDraft.class))).thenReturn(ProductFixtures.product());
 
-        verify(mockStorage).save(captor.capture());
-        Product saved = captor.getValue();
+    productService.create(createProductCommand);
 
-        assertEquals(productName, saved.name());
-        assertEquals(price, saved.price());
-        assertNotNull(saved.id());
-    }
+    verify(mockStorage).create(captor.capture());
+    var created = captor.getValue();
 
+    assertEquals(ProductFixtures.name(), created.name());
+    assertEquals(ProductFixtures.money10USD(), created.price());
+  }
+
+  @Test
+  void should_update_a_product() {
+    var updateProductCommand = ProductFixtures.updateProductCommand();
+    when(mockStorage.update(any(Product.class))).thenReturn(Optional.of(ProductFixtures.product()));
+
+    productService.update(updateProductCommand);
+
+    ArgumentCaptor<Product> captor = ArgumentCaptor.captor();
+    verify(mockStorage).update(captor.capture());
+    var updated = captor.getValue();
+
+    assertEquals(ProductFixtures.product(), updated);
+  }
+
+  @Test
+  void should_throw_exception_if_not_exist() {
+    var updateProductCommand = ProductFixtures.updateProductCommand();
+    when(mockStorage.update(any(Product.class))).thenReturn(Optional.empty());
+
+    assertThrows(ProductNotFoundException.class, () -> productService.update(updateProductCommand));
+  }
 }
