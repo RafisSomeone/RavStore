@@ -77,7 +77,7 @@ class ProductControllerTest {
   @MethodSource("invalidRequests")
   void should_throw_400_if_invalid_request(CreateProductRequest request, String caseName)
       throws Exception {
-    verify(createProductUseCase, never()).create(any(CreateProductCommand.class));
+    verifyNoInteractions(updateProductUseCase);
 
     createProduct(request).andExpect(status().isBadRequest());
   }

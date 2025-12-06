@@ -1,4 +1,4 @@
-package com.ravstore.ravstoreplatform;
+package com.ravstore.productservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
