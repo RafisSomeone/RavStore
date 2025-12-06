@@ -1,20 +1,12 @@
 package com.ravstore.productservice.adapter.in.web;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ravstore.productservice.configuration.ProductTestConfig;
-import com.ravstore.productservice.fixtures.ProductFixtures;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.UUID;
-import java.util.stream.Stream;
+import com.ravstore.productservice.mother.CreateProductRequestMother;
+import com.ravstore.productservice.mother.ProductMother;
+import com.ravstore.productservice.mother.UpdateProductRequestMother;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +16,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @WebMvcTest(ProductController.class)
 @Import(ProductTestConfig.class)
 class ProductControllerTest {
@@ -32,28 +34,15 @@ class ProductControllerTest {
 
   @Autowired ObjectMapper objectMapper;
 
-  private ResultActions createProduct(CreateProductRequest request) throws Exception {
-    return mockMvc.perform(
-        post("/products")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+  private ResultActions createProduct(String json) throws Exception {
+    return mockMvc.perform(post("/products").contentType(MediaType.APPLICATION_JSON).content(json));
   }
 
-  private ResultActions updateProduct(UpdateProductRequest request, String id) throws Exception {
+  private ResultActions updateProduct(String json, String id) throws Exception {
     return mockMvc.perform(
         put("/products/" + id)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
-  }
-
-  static Stream<Arguments> invalidRequests() {
-    return Stream.of(
-        Arguments.of(new CreateProductRequest("", ProductFixtures.moneyDTO10USD()), "blank name"),
-        Arguments.of(new CreateProductRequest(null, ProductFixtures.moneyDTO10USD()), "no name"),
-        Arguments.of(
-            new CreateProductRequest(
-                ProductFixtures.name(), new MoneyDTO(new BigDecimal("-10"), "USD")),
-            "negative price"));
+            .content(json));
   }
 
   static <T> T getBody(MvcResult result, Class<T> type, ObjectMapper objectMapper)
@@ -63,29 +52,30 @@ class ProductControllerTest {
 
   @Test
   void should_create_product() throws Exception {
-    var request = ProductFixtures.createProductRequest();
+    String request = CreateProductRequestMother.validRequest();
+    CreateProductRequest expected = objectMapper.readValue(request, CreateProductRequest.class);
 
     var result = createProduct(request).andExpect(status().isCreated()).andReturn();
 
     var body = getBody(result, ProductResponse.class, objectMapper);
     assertDoesNotThrow(() -> UUID.fromString(body.id().toString()));
-    assertEquals(request.name(), body.name());
-    assertEquals(0, request.price().amount().compareTo(new BigDecimal(body.amount())));
-    assertEquals(request.price().currency(), body.currency());
+    assertEquals(expected.name(), body.name());
+    assertEquals(0, expected.price().amount().compareTo(new BigDecimal(body.amount())));
+    assertEquals(expected.price().currency(), body.currency());
   }
 
   @ParameterizedTest(name = "{1}")
-  @MethodSource("invalidRequests")
-  void should_throw_400_if_invalid_request(CreateProductRequest request, String caseName)
-      throws Exception {
-
+  @MethodSource(
+          "com.ravstore.productservice.mother.CreateProductRequestMother#invalidRequest")
+  void should_throw_400_if_invalid_create_request(String request, String caseName) throws Exception {
     createProduct(request).andExpect(status().isBadRequest());
   }
 
   @Test
   void should_create_and_update_product() throws Exception {
-    var createProductRequest = ProductFixtures.createProductRequest();
-    var updatedProductRequest = ProductFixtures.updateProductRequest();
+    var createProductRequest = CreateProductRequestMother.validRequest();
+    var updatedProductRequest = UpdateProductRequestMother.validRequest();
+    var expected = objectMapper.readValue(updatedProductRequest, UpdateProductRequest.class);
 
     var result = createProduct(createProductRequest).andExpect(status().isCreated()).andReturn();
     var createBody = getBody(result, ProductResponse.class, objectMapper);
@@ -96,16 +86,22 @@ class ProductControllerTest {
             .andReturn();
     var updateBody = getBody(updateResult, ProductResponse.class, objectMapper);
 
-    assertEquals(updatedProductRequest.name(), updateBody.name());
+    assertEquals(expected.name(), updateBody.name());
     assertEquals(
-        0, updatedProductRequest.price().amount().compareTo(new BigDecimal(updateBody.amount())));
-    assertEquals(updatedProductRequest.price().currency(), updateBody.currency());
+        0, expected.price().amount().compareTo(new BigDecimal(updateBody.amount())));
+    assertEquals(expected.price().currency(), updateBody.currency());
   }
 
   @Test
   void should_throw_404_if_does_not_exist() throws Exception {
-    var request = ProductFixtures.updateProductRequest();
+    var request = UpdateProductRequestMother.validRequest();
 
-    updateProduct(request, ProductFixtures.id().toString()).andExpect(status().isNotFound());
+    updateProduct(request, ProductMother.id().toString()).andExpect(status().isNotFound());
+  }
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("com.ravstore.productservice.mother.UpdateProductRequestMother#invalidRequest")
+    void should_return_400_if_invalid_update_request(String request, String caseName) throws Exception {
+      updateProduct(request, ProductMother.id().toString()).andExpect(status().isBadRequest());
   }
 }

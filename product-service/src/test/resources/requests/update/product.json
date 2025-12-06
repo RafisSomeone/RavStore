@@ -1,0 +1,7 @@
+{
+  "name": "Product1",
+  "price": {
+    "amount": "10.99",
+    "currency": "USD"
+  }
+}

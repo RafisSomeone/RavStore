@@ -10,7 +10,7 @@ import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.usecase.ProductService;
 import com.ravstore.productservice.domain.Product;
-import com.ravstore.productservice.fixtures.ProductFixtures;
+import com.ravstore.productservice.mother.ProductMother;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,22 +34,22 @@ class ProductServiceTest {
   @Test
   void should_create_a_product() {
     var createProductCommand =
-        new CreateProductCommand(ProductFixtures.name(), ProductFixtures.money10USD());
-    when(mockStorage.create(any(ProductDraft.class))).thenReturn(ProductFixtures.product());
+        new CreateProductCommand(ProductMother.name(), ProductMother.money10USD());
+    when(mockStorage.create(any(ProductDraft.class))).thenReturn(ProductMother.product());
 
     productService.create(createProductCommand);
 
     verify(mockStorage).create(captor.capture());
     var created = captor.getValue();
 
-    assertEquals(ProductFixtures.name(), created.name());
-    assertEquals(ProductFixtures.money10USD(), created.price());
+    assertEquals(ProductMother.name(), created.name());
+    assertEquals(ProductMother.money10USD(), created.price());
   }
 
   @Test
   void should_update_a_product() {
-    var updateProductCommand = ProductFixtures.updateProductCommand();
-    when(mockStorage.update(any(Product.class))).thenReturn(Optional.of(ProductFixtures.product()));
+    var updateProductCommand = ProductMother.updateProductCommand();
+    when(mockStorage.update(any(Product.class))).thenReturn(Optional.of(ProductMother.product()));
 
     productService.update(updateProductCommand);
 
@@ -57,12 +57,12 @@ class ProductServiceTest {
     verify(mockStorage).update(captor.capture());
     var updated = captor.getValue();
 
-    assertEquals(ProductFixtures.product(), updated);
+    assertEquals(ProductMother.product(), updated);
   }
 
   @Test
   void should_throw_exception_if_not_exist() {
-    var updateProductCommand = ProductFixtures.updateProductCommand();
+    var updateProductCommand = ProductMother.updateProductCommand();
     when(mockStorage.update(any(Product.class))).thenReturn(Optional.empty());
 
     var response = productService.update(updateProductCommand);
