@@ -12,9 +12,9 @@ import java.util.UUID;
 
 public class ProductFixtures {
 
-    public static final String CURRENCY = "USD";
+  public static final String CURRENCY = "USD";
 
-    public static UUID id() {
+  public static UUID id() {
     return UUID.fromString("170B11E6-11D6-4EC2-AE31-A731291B7B20");
   }
 
@@ -31,7 +31,7 @@ public class ProductFixtures {
   }
 
   public static MoneyDTO moneyDTO20USD() {
-      return new MoneyDTO(new BigDecimal("20"), CURRENCY);
+    return new MoneyDTO(new BigDecimal("20"), CURRENCY);
   }
 
   public static Product product() {

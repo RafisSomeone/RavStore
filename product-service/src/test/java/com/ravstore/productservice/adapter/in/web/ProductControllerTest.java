@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ravstore.productservice.configuration.ProductTestConfig;
 import com.ravstore.productservice.fixtures.ProductFixtures;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -57,10 +56,10 @@ class ProductControllerTest {
             "negative price"));
   }
 
-  static <T> T getBody(
-    MvcResult result, Class<T> type, ObjectMapper objectMapper) throws IOException {
-      return objectMapper.readValue(result.getResponse().getContentAsByteArray(), type);
-    }
+  static <T> T getBody(MvcResult result, Class<T> type, ObjectMapper objectMapper)
+      throws IOException {
+    return objectMapper.readValue(result.getResponse().getContentAsByteArray(), type);
+  }
 
   @Test
   void should_create_product() throws Exception {
@@ -91,11 +90,15 @@ class ProductControllerTest {
     var result = createProduct(createProductRequest).andExpect(status().isCreated()).andReturn();
     var createBody = getBody(result, ProductResponse.class, objectMapper);
 
-    var updateResult = updateProduct(updatedProductRequest, createBody.id().toString()).andExpect(status().isOk()).andReturn();
+    var updateResult =
+        updateProduct(updatedProductRequest, createBody.id().toString())
+            .andExpect(status().isOk())
+            .andReturn();
     var updateBody = getBody(updateResult, ProductResponse.class, objectMapper);
 
     assertEquals(updatedProductRequest.name(), updateBody.name());
-    assertEquals(0, updatedProductRequest.price().amount().compareTo(new BigDecimal(updateBody.amount())));
+    assertEquals(
+        0, updatedProductRequest.price().amount().compareTo(new BigDecimal(updateBody.amount())));
     assertEquals(updatedProductRequest.price().currency(), updateBody.currency());
   }
 

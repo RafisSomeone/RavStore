@@ -2,8 +2,7 @@ package com.ravstore.productservice.adapter.in.web;
 
 import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.UpdateProductCommand;
-import com.ravstore.productservice.application.port.in.CreateProductUseCase;
-import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
+import com.ravstore.productservice.application.port.in.ProductHandler;
 import com.ravstore.productservice.domain.Money;
 import java.net.URI;
 import java.util.Currency;
@@ -16,13 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/products")
 class ProductController {
 
-  private final CreateProductUseCase createProductUseCase;
-  private final UpdateProductUseCase updateProductUseCase;
+  private final ProductHandler createProductUseCase;
+  private final ProductHandler productHandler;
 
-  ProductController(
-      CreateProductUseCase createProductUseCase, UpdateProductUseCase updateProductUseCase) {
+  ProductController(ProductHandler createProductUseCase, ProductHandler productHandler) {
     this.createProductUseCase = createProductUseCase;
-    this.updateProductUseCase = updateProductUseCase;
+    this.productHandler = productHandler;
   }
 
   @PostMapping()
@@ -47,7 +45,7 @@ class ProductController {
             id,
             body.name(),
             new Money(body.price().amount(), Currency.getInstance(body.price().currency())));
-    var product = updateProductUseCase.update(command);
+    var product = productHandler.update(command);
 
     return ResponseEntity.ok(ProductResponse.from(product));
   }

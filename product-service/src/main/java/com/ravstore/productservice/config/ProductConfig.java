@@ -3,8 +3,7 @@ package com.ravstore.productservice.config;
 import com.ravstore.productservice.adapter.out.InMemoryProductStorage;
 import com.ravstore.productservice.adapter.out.MeterBusinessMetrics;
 import com.ravstore.productservice.adapter.out.MeterSystemMetrics;
-import com.ravstore.productservice.application.port.in.CreateProductUseCase;
-import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
+import com.ravstore.productservice.application.port.in.ProductHandler;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.port.out.SystemMetrics;
@@ -17,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 class ProductConfig {
 
   @Bean
-  CreateProductUseCase createProductUseCase(
+  ProductHandler createProductUseCase(
       ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }
@@ -35,11 +34,5 @@ class ProductConfig {
   @Bean
   BusinessMetrics businessMetrics(MeterRegistry meterRegistry) {
     return new MeterBusinessMetrics(meterRegistry);
-  }
-
-  @Bean
-  UpdateProductUseCase updateProductUseCase(
-      ProductStorage productStorage, BusinessMetrics metricsService) {
-    return new ProductService(productStorage, metricsService);
   }
 }

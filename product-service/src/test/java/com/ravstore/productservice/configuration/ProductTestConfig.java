@@ -3,8 +3,7 @@ package com.ravstore.productservice.configuration;
 import com.ravstore.productservice.adapter.out.InMemoryBusinessMetrics;
 import com.ravstore.productservice.adapter.out.InMemoryProductStorage;
 import com.ravstore.productservice.adapter.out.InMemorySystemMetrics;
-import com.ravstore.productservice.application.port.in.CreateProductUseCase;
-import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
+import com.ravstore.productservice.application.port.in.ProductHandler;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.port.out.SystemMetrics;
@@ -26,18 +25,12 @@ public class ProductTestConfig {
   }
 
   @Bean
-  ProductStorage productStorage(BusinessMetrics metricsService) {
+  ProductStorage productStorage() {
     return new InMemoryProductStorage();
   }
 
   @Bean
-  CreateProductUseCase createProductUseCase(
-      ProductStorage productStorage, BusinessMetrics metricsService) {
-    return new ProductService(productStorage, metricsService);
-  }
-
-  @Bean
-  UpdateProductUseCase updateProductUseCase(
+  ProductHandler createProductUseCase(
       ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }
