@@ -8,12 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class InMemoryProductStorage implements ProductStorage {
-
-  private static final Logger logger = LoggerFactory.getLogger(InMemoryProductStorage.class);
 
   private final MetricsService metricsService;
 
@@ -32,7 +31,7 @@ public class InMemoryProductStorage implements ProductStorage {
       return product;
 
     } catch (Exception e) { // Let's assume this is a normal database save;
-      logger.error("Database call failed, creating product name='{}`", draft.name());
+      log.error("Database call failed, creating product name='{}`", draft.name());
       metricsService.databaseCallFailIncrement();
       throw new RuntimeException(e);
     }
@@ -44,7 +43,7 @@ public class InMemoryProductStorage implements ProductStorage {
       database.put(product.id(), product);
       return Optional.of(product);
     } catch (Exception e) {
-      logger.error(
+      log.error(
           "Database call failed, saving product id={}, name='{}`", product.id(), product.name());
       metricsService.databaseCallFailIncrement();
       throw new RuntimeException(e);

@@ -64,7 +64,7 @@ class ProductControllerTest {
 
   @ParameterizedTest(name = "{1}")
   @MethodSource("invalidRequests")
-  void should_throw_400_if_invalid_request(CreateProductRequest request, String _caseName)
+  void should_throw_400_if_invalid_request(CreateProductRequest request, String caseName)
       throws Exception {
     verify(createProductUseCase, never()).create(any(CreateProductCommand.class));
 

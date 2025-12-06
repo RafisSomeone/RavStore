@@ -9,12 +9,10 @@ import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
 import com.ravstore.productservice.application.port.out.MetricsService;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.domain.Product;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ProductService implements CreateProductUseCase, UpdateProductUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
   private final ProductStorage productStorage;
   private final MetricsService metricsService;
@@ -26,17 +24,17 @@ public class ProductService implements CreateProductUseCase, UpdateProductUseCas
 
   @Override
   public Product create(CreateProductCommand command) {
-    logger.info("Creating product name='{}'", command.name());
+    log.info("Creating product name='{}'", command.name());
 
     try {
       var product = productStorage.create(new ProductDraft(command.name(), command.price()));
 
-      logger.info("Created product id={}, name='{}'", product.id(), product.name());
+      log.info("Created product id={}, name='{}'", product.id(), product.name());
       metricsService.productCreateSuccessIncrement();
 
       return product;
     } catch (Exception e) {
-      logger.error("Product name='{}' creation failed", command.name());
+      log.error("Product name='{}' creation failed", command.name());
       metricsService.productCreateFailIncrement();
       throw e;
     }
@@ -44,7 +42,7 @@ public class ProductService implements CreateProductUseCase, UpdateProductUseCas
 
   @Override
   public Product update(UpdateProductCommand command) {
-    logger.info("Updating product name='{}'", command.name());
+    log.info("Updating product name='{}'", command.name());
 
     try {
       var updatedProduct =
@@ -52,12 +50,12 @@ public class ProductService implements CreateProductUseCase, UpdateProductUseCas
               .update(new Product(command.id(), command.name(), command.price()))
               .orElseThrow(() -> new ProductNotFoundException(command.id()));
 
-      logger.info("Updated product id={}, name='{}'", updatedProduct.id(), updatedProduct.name());
+      log.info("Updated product id={}, name='{}'", updatedProduct.id(), updatedProduct.name());
       metricsService.productUpdateSuccessIncrement();
 
       return updatedProduct;
     } catch (Exception e) {
-      logger.error("Product name='{}' update failed", command.name());
+      log.error("Product name='{}' update failed", command.name());
       metricsService.productUpdateFailIncrement();
       throw e;
     }
