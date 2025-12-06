@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.ProductDraft;
 import com.ravstore.productservice.application.exception.ProductNotFoundException;
-import com.ravstore.productservice.application.port.out.MetricsService;
+import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.usecase.ProductService;
 import com.ravstore.productservice.domain.Product;
@@ -25,7 +25,7 @@ class ProductServiceTest {
 
   @Mock private ProductStorage mockStorage;
 
-  @Mock private MetricsService mockMetrics;
+  @Mock private BusinessMetrics mockMetrics;
 
   @Captor private ArgumentCaptor<ProductDraft> captor;
 

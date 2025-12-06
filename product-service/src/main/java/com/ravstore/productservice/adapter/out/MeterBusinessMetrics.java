@@ -1,18 +1,17 @@
 package com.ravstore.productservice.adapter.out;
 
-import com.ravstore.productservice.application.port.out.MetricsService;
+import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
-public class MicrometerMetricsService implements MetricsService {
+public class MeterBusinessMetrics implements BusinessMetrics {
 
   private final Counter productCreateSuccess;
   private final Counter productCreateFail;
   private final Counter productUpdateSuccess;
   private final Counter productUpdateFail;
-  private final Counter databaseCallFail;
 
-  public MicrometerMetricsService(MeterRegistry registry) {
+  public MeterBusinessMetrics(MeterRegistry registry) {
     productCreateSuccess =
         Counter.builder("ravstore.product-service.create.success.count")
             .description("Number of products created")
@@ -21,11 +20,6 @@ public class MicrometerMetricsService implements MetricsService {
     productCreateFail =
         Counter.builder("ravstore.product-service.create.fail.count")
             .description("Number of failed product creations")
-            .register(registry);
-
-    databaseCallFail =
-        Counter.builder("ravstore.product-service.database.fail.count")
-            .description("Number of database call fails")
             .register(registry);
 
     productUpdateSuccess =
@@ -57,10 +51,5 @@ public class MicrometerMetricsService implements MetricsService {
   @Override
   public void productUpdateFailIncrement() {
     productUpdateFail.increment();
-  }
-
-  @Override
-  public void databaseCallFailIncrement() {
-    databaseCallFail.increment();
   }
 }

@@ -6,7 +6,7 @@ import com.ravstore.productservice.application.dto.UpdateProductCommand;
 import com.ravstore.productservice.application.exception.ProductNotFoundException;
 import com.ravstore.productservice.application.port.in.CreateProductUseCase;
 import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
-import com.ravstore.productservice.application.port.out.MetricsService;
+import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.domain.Product;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductService implements CreateProductUseCase, UpdateProductUseCase {
 
   private final ProductStorage productStorage;
-  private final MetricsService metricsService;
+  private final BusinessMetrics metricsService;
 
-  public ProductService(ProductStorage productStorage, MetricsService metricsService) {
+  public ProductService(ProductStorage productStorage, BusinessMetrics metricsService) {
     this.productStorage = productStorage;
     this.metricsService = metricsService;
   }

@@ -1,11 +1,9 @@
 package com.ravstore.productservice.application.port.out;
 
-public interface MetricsService {
+public interface BusinessMetrics {
   void productCreateSuccessIncrement();
 
   void productCreateFailIncrement();
-
-  void databaseCallFailIncrement();
 
   void productUpdateSuccessIncrement();
 

@@ -1,11 +1,13 @@
 package com.ravstore.productservice.config;
 
 import com.ravstore.productservice.adapter.out.InMemoryProductStorage;
-import com.ravstore.productservice.adapter.out.MicrometerMetricsService;
+import com.ravstore.productservice.adapter.out.MeterBusinessMetrics;
+import com.ravstore.productservice.adapter.out.MeterSystemMetrics;
 import com.ravstore.productservice.application.port.in.CreateProductUseCase;
 import com.ravstore.productservice.application.port.in.UpdateProductUseCase;
-import com.ravstore.productservice.application.port.out.MetricsService;
+import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
+import com.ravstore.productservice.application.port.out.SystemMetrics;
 import com.ravstore.productservice.application.usecase.ProductService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
@@ -16,23 +18,28 @@ class ProductConfig {
 
   @Bean
   CreateProductUseCase createProductUseCase(
-      ProductStorage productStorage, MetricsService metricsService) {
+      ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }
 
   @Bean
-  ProductStorage productStorage(MetricsService metricsService) {
-    return new InMemoryProductStorage(metricsService);
+  ProductStorage productStorage() {
+    return new InMemoryProductStorage();
   }
 
   @Bean
-  MetricsService metricsService(MeterRegistry meterRegistry) {
-    return new MicrometerMetricsService(meterRegistry);
+  SystemMetrics systemMetrics(MeterRegistry meterRegistry) {
+    return new MeterSystemMetrics(meterRegistry);
+  }
+
+  @Bean
+  BusinessMetrics businessMetrics(MeterRegistry meterRegistry) {
+    return new MeterBusinessMetrics(meterRegistry);
   }
 
   @Bean
   UpdateProductUseCase updateProductUseCase(
-      ProductStorage productStorage, MetricsService metricsService) {
+      ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }
 }
