@@ -11,7 +11,10 @@ import java.util.Currency;
 import java.util.UUID;
 
 public class ProductFixtures {
-  public static UUID id() {
+
+    public static final String CURRENCY = "USD";
+
+    public static UUID id() {
     return UUID.fromString("170B11E6-11D6-4EC2-AE31-A731291B7B20");
   }
 
@@ -20,11 +23,15 @@ public class ProductFixtures {
   }
 
   public static Money money10USD() {
-    return new Money(new BigDecimal("10"), Currency.getInstance("USD"));
+    return new Money(new BigDecimal("10"), Currency.getInstance(CURRENCY));
   }
 
   public static MoneyDTO moneyDTO10USD() {
-    return new MoneyDTO(new BigDecimal("10"), "USD");
+    return new MoneyDTO(new BigDecimal("10"), CURRENCY);
+  }
+
+  public static MoneyDTO moneyDTO20USD() {
+      return new MoneyDTO(new BigDecimal("20"), CURRENCY);
   }
 
   public static Product product() {

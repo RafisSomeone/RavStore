@@ -71,7 +71,7 @@ class ProductControllerTest {
     var body = getBody(result, ProductResponse.class, objectMapper);
     assertDoesNotThrow(() -> UUID.fromString(body.id().toString()));
     assertEquals(request.name(), body.name());
-    assertEquals(request.price().amount().toString(), body.amount());
+    assertEquals(0, request.price().amount().compareTo(new BigDecimal(body.amount())));
     assertEquals(request.price().currency(), body.currency());
   }
 
@@ -89,10 +89,14 @@ class ProductControllerTest {
     var updatedProductRequest = ProductFixtures.updateProductRequest();
 
     var result = createProduct(createProductRequest).andExpect(status().isCreated()).andReturn();
-    var body = result.getResponse().getContentAsString();
-    var id = objectMapper.readTree(body).get("id").asText();
+    var createBody = getBody(result, ProductResponse.class, objectMapper);
 
-    updateProduct(updatedProductRequest, id).andExpect(status().isOk());
+    var updateResult = updateProduct(updatedProductRequest, createBody.id().toString()).andExpect(status().isOk()).andReturn();
+    var updateBody = getBody(updateResult, ProductResponse.class, objectMapper);
+
+    assertEquals(updatedProductRequest.name(), updateBody.name());
+    assertEquals(0, updatedProductRequest.price().amount().compareTo(new BigDecimal(updateBody.amount())));
+    assertEquals(updatedProductRequest.price().currency(), updateBody.currency());
   }
 
   @Test
