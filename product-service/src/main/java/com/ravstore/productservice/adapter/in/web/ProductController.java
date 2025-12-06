@@ -15,11 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/products")
 class ProductController {
 
-  private final ProductHandler createProductUseCase;
   private final ProductHandler productHandler;
 
-  ProductController(ProductHandler createProductUseCase, ProductHandler productHandler) {
-    this.createProductUseCase = createProductUseCase;
+  ProductController(ProductHandler productHandler) {
     this.productHandler = productHandler;
   }
 
@@ -30,7 +28,7 @@ class ProductController {
             body.name(),
             new Money(body.price().amount(), Currency.getInstance(body.price().currency())));
 
-    var product = createProductUseCase.create(command);
+    var product = productHandler.create(command);
     var response = ProductResponse.from(product);
     var location = URI.create("/products/" + product.id());
 

@@ -1,5 +1,7 @@
 package com.ravstore.productservice.domain;
 
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
@@ -17,14 +19,15 @@ class MoneyTest {
 
     Money money = new Money(amount, DEFAULT_CURRENCY);
 
-    assertEquals(expectedAmount, money.amount());
-    assertEquals(DEFAULT_CURRENCY, money.currency());
+    then(money.amount()).isEqualTo(expectedAmount);
+    then(money.currency()).isEqualTo(DEFAULT_CURRENCY);
   }
 
   @Test
   void should_not_create_if_amount_lower_than_zero() {
     var amount = new BigDecimal("-10");
 
-    assertThrows(IllegalArgumentException.class, () -> new Money(amount, DEFAULT_CURRENCY));
+    thenThrownBy(() -> new Money(amount, DEFAULT_CURRENCY))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }

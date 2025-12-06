@@ -1,10 +1,18 @@
 package com.ravstore.productservice.adapter.in.web;
 
+import static org.assertj.core.api.BDDAssertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ravstore.productservice.configuration.ProductTestConfig;
 import com.ravstore.productservice.mother.CreateProductRequestMother;
 import com.ravstore.productservice.mother.ProductMother;
 import com.ravstore.productservice.mother.UpdateProductRequestMother;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,16 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
 @Import(ProductTestConfig.class)
@@ -40,9 +38,7 @@ class ProductControllerTest {
 
   private ResultActions updateProduct(String json, String id) throws Exception {
     return mockMvc.perform(
-        put("/products/" + id)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json));
+        put("/products/" + id).contentType(MediaType.APPLICATION_JSON).content(json));
   }
 
   static <T> T getBody(MvcResult result, Class<T> type, ObjectMapper objectMapper)
@@ -56,18 +52,18 @@ class ProductControllerTest {
     CreateProductRequest expected = objectMapper.readValue(request, CreateProductRequest.class);
 
     var result = createProduct(request).andExpect(status().isCreated()).andReturn();
-
     var body = getBody(result, ProductResponse.class, objectMapper);
-    assertDoesNotThrow(() -> UUID.fromString(body.id().toString()));
-    assertEquals(expected.name(), body.name());
-    assertEquals(0, expected.price().amount().compareTo(new BigDecimal(body.amount())));
-    assertEquals(expected.price().currency(), body.currency());
+
+    thenNoException().isThrownBy(() -> UUID.fromString(body.id().toString()));
+    then(body.name()).isEqualTo(expected.name());
+    then(expected.price().amount()).isEqualByComparingTo(new BigDecimal(body.amount()));
+    then(body.currency()).isEqualTo(expected.price().currency());
   }
 
   @ParameterizedTest(name = "{1}")
-  @MethodSource(
-          "com.ravstore.productservice.mother.CreateProductRequestMother#invalidRequest")
-  void should_throw_400_if_invalid_create_request(String request, String caseName) throws Exception {
+  @MethodSource("com.ravstore.productservice.mother.CreateProductRequestMother#invalidRequest")
+  void should_throw_400_if_invalid_create_request(String request, String caseName)
+      throws Exception {
     createProduct(request).andExpect(status().isBadRequest());
   }
 
@@ -86,10 +82,9 @@ class ProductControllerTest {
             .andReturn();
     var updateBody = getBody(updateResult, ProductResponse.class, objectMapper);
 
-    assertEquals(expected.name(), updateBody.name());
-    assertEquals(
-        0, expected.price().amount().compareTo(new BigDecimal(updateBody.amount())));
-    assertEquals(expected.price().currency(), updateBody.currency());
+    then(updateBody.name()).isEqualTo(expected.name());
+    then(expected.price().amount()).isEqualByComparingTo(new BigDecimal(updateBody.amount()));
+    then(updateBody.currency()).isEqualTo(expected.price().currency());
   }
 
   @Test
@@ -101,7 +96,8 @@ class ProductControllerTest {
 
   @ParameterizedTest(name = "{1}")
   @MethodSource("com.ravstore.productservice.mother.UpdateProductRequestMother#invalidRequest")
-    void should_return_400_if_invalid_update_request(String request, String caseName) throws Exception {
-      updateProduct(request, ProductMother.id().toString()).andExpect(status().isBadRequest());
+  void should_return_400_if_invalid_update_request(String request, String caseName)
+      throws Exception {
+    updateProduct(request, ProductMother.id().toString()).andExpect(status().isBadRequest());
   }
 }

@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 class ProductConfig {
 
   @Bean
-  ProductHandler createProductUseCase(
+  ProductHandler productHandler(
       ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }

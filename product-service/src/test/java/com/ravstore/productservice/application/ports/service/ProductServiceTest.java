@@ -1,5 +1,6 @@
 package com.ravstore.productservice.application.ports.service;
 
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -40,10 +41,11 @@ class ProductServiceTest {
     productService.create(createProductCommand);
 
     verify(mockStorage).create(captor.capture());
+    verify(mockMetrics).productCreateSuccessIncrement();
     var created = captor.getValue();
 
-    assertEquals(ProductMother.name(), created.name());
-    assertEquals(ProductMother.money10USD(), created.price());
+    then(created.name()).isEqualTo(ProductMother.name());
+    then(created.price()).isEqualTo(ProductMother.money10USD());
   }
 
   @Test
@@ -52,12 +54,13 @@ class ProductServiceTest {
     when(mockStorage.update(any(Product.class))).thenReturn(Optional.of(ProductMother.product()));
 
     productService.update(updateProductCommand);
+    verify(mockMetrics).productUpdateSuccessIncrement();
 
     ArgumentCaptor<Product> captor = ArgumentCaptor.captor();
     verify(mockStorage).update(captor.capture());
     var updated = captor.getValue();
 
-    assertEquals(ProductMother.product(), updated);
+    then(updated).isEqualTo(ProductMother.product());
   }
 
   @Test
@@ -66,6 +69,7 @@ class ProductServiceTest {
     when(mockStorage.update(any(Product.class))).thenReturn(Optional.empty());
 
     var response = productService.update(updateProductCommand);
-    assertEquals(new NotFound(), response.getLeft());
+
+    then(response.getLeft()).isEqualTo(new NotFound());
   }
 }
