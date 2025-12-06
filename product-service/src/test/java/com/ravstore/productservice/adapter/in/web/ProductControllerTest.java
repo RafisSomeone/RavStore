@@ -25,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
@@ -37,19 +38,18 @@ class ProductControllerTest {
 
   @MockitoBean private UpdateProductUseCase updateProductUseCase;
 
-  @Test
-  void should_create_product() throws Exception {
-    var request = ProductFixtures.createProductRequest();
-    when(createProductUseCase.create(any(CreateProductCommand.class)))
-        .thenReturn(ProductFixtures.product());
+  private ResultActions createProduct(CreateProductRequest request) throws Exception {
+    return mockMvc.perform(
+        post("/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)));
+  }
 
-    mockMvc
-        .perform(
-            post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated())
-        .andExpect(header().string("Location", "/products/" + ProductFixtures.id()));
+  private ResultActions updateProduct(UpdateProductRequest request) throws Exception {
+    return mockMvc.perform(
+        put("/products/" + ProductFixtures.id())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)));
   }
 
   static Stream<Arguments> invalidRequests() {
@@ -62,18 +62,24 @@ class ProductControllerTest {
             "negative price"));
   }
 
+  @Test
+  void should_create_product() throws Exception {
+    var request = ProductFixtures.createProductRequest();
+    when(createProductUseCase.create(any(CreateProductCommand.class)))
+        .thenReturn(ProductFixtures.product());
+
+    createProduct(request)
+        .andExpect(status().isCreated())
+        .andExpect(header().string("Location", "/products/" + ProductFixtures.id()));
+  }
+
   @ParameterizedTest(name = "{1}")
   @MethodSource("invalidRequests")
   void should_throw_400_if_invalid_request(CreateProductRequest request, String caseName)
       throws Exception {
     verify(createProductUseCase, never()).create(any(CreateProductCommand.class));
 
-    mockMvc
-        .perform(
-            post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+    createProduct(request).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -82,12 +88,7 @@ class ProductControllerTest {
     when(updateProductUseCase.update(any(UpdateProductCommand.class)))
         .thenReturn(ProductFixtures.product());
 
-    mockMvc
-        .perform(
-            put("/products/" + ProductFixtures.id())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk());
+    updateProduct(request).andExpect(status().isOk());
   }
 
   @Test
@@ -96,11 +97,6 @@ class ProductControllerTest {
     when(updateProductUseCase.update(any(UpdateProductCommand.class)))
         .thenThrow(new ProductNotFoundException(ProductFixtures.id()));
 
-    mockMvc
-        .perform(
-            put("/products/" + ProductFixtures.id())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNotFound());
+    updateProduct(request).andExpect(status().isNotFound());
   }
 }
