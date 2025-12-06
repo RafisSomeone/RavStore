@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.ProductDraft;
-import com.ravstore.productservice.application.exception.ProductNotFoundException;
+import com.ravstore.productservice.application.error.NotFound;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.usecase.ProductService;
@@ -65,6 +65,7 @@ class ProductServiceTest {
     var updateProductCommand = ProductFixtures.updateProductCommand();
     when(mockStorage.update(any(Product.class))).thenReturn(Optional.empty());
 
-    assertThrows(ProductNotFoundException.class, () -> productService.update(updateProductCommand));
+    var response = productService.update(updateProductCommand);
+    assertEquals(new NotFound(), response.getLeft());
   }
 }

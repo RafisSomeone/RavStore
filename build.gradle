@@ -48,6 +48,7 @@ subprojects {
         mockitoAgent('org.mockito:mockito-core') { transitive = false }
 
         implementation "org.springframework.boot:spring-boot-starter-actuator"
+        implementation 'io.vavr:vavr:0.10.7'
 
         runtimeOnly "io.micrometer:micrometer-registry-prometheus"
     }

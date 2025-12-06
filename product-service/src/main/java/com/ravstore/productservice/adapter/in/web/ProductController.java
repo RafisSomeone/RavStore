@@ -45,8 +45,10 @@ class ProductController {
             id,
             body.name(),
             new Money(body.price().amount(), Currency.getInstance(body.price().currency())));
-    var product = productHandler.update(command);
-
-    return ResponseEntity.ok(ProductResponse.from(product));
+    return productHandler
+        .update(command)
+        .fold(
+            error -> ResponseEntity.notFound().build(),
+            product -> ResponseEntity.ok(ProductResponse.from(product)));
   }
 }

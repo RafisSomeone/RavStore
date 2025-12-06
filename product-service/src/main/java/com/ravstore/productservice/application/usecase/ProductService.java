@@ -3,11 +3,13 @@ package com.ravstore.productservice.application.usecase;
 import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.ProductDraft;
 import com.ravstore.productservice.application.dto.UpdateProductCommand;
-import com.ravstore.productservice.application.exception.ProductNotFoundException;
+import com.ravstore.productservice.application.error.NotFound;
+import com.ravstore.productservice.application.error.UpdateProductError;
 import com.ravstore.productservice.application.port.in.ProductHandler;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.domain.Product;
+import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,19 +42,20 @@ public class ProductService implements ProductHandler {
   }
 
   @Override
-  public Product update(UpdateProductCommand command) {
+  public Either<UpdateProductError, Product> update(UpdateProductCommand command) {
     log.info("Updating product name='{}'", command.name());
 
     try {
-      var updatedProduct =
-          productStorage
-              .update(new Product(command.id(), command.name(), command.price()))
-              .orElseThrow(() -> new ProductNotFoundException(command.id()));
+      return productStorage
+          .update(new Product(command.id(), command.name(), command.price()))
+          .<Either<UpdateProductError, Product>>map(
+              product -> {
+                log.info("Updated product id={}, name='{}'", product.id(), product.name());
+                metricsService.productUpdateSuccessIncrement();
+                return Either.right(product);
+              })
+          .orElseGet(() -> Either.left(new NotFound()));
 
-      log.info("Updated product id={}, name='{}'", updatedProduct.id(), updatedProduct.name());
-      metricsService.productUpdateSuccessIncrement();
-
-      return updatedProduct;
     } catch (Exception e) {
       log.error("Product name='{}' update failed", command.name());
       metricsService.productUpdateFailIncrement();
