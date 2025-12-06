@@ -12,26 +12,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ProductConfig {
+class ProductConfig {
 
   @Bean
-  public CreateProductUseCase createProductUseCase(
+  CreateProductUseCase createProductUseCase(
       ProductStorage productStorage, MetricsService metricsService) {
     return new ProductService(productStorage, metricsService);
   }
 
   @Bean
-  public ProductStorage productStorage(MetricsService metricsService) {
+  ProductStorage productStorage(MetricsService metricsService) {
     return new InMemoryProductStorage(metricsService);
   }
 
   @Bean
-  public MetricsService metricsService(MeterRegistry meterRegistry) {
+  MetricsService metricsService(MeterRegistry meterRegistry) {
     return new MicrometerMetricsService(meterRegistry);
   }
 
   @Bean
-  public UpdateProductUseCase updateProductUseCase(
+  UpdateProductUseCase updateProductUseCase(
       ProductStorage productStorage, MetricsService metricsService) {
     return new ProductService(productStorage, metricsService);
   }

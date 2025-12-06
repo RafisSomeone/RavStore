@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = CurrencyCodeValidator.class)
 @Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
-public @interface ValidCurrency {
+@interface ValidCurrency {
   String message() default "Invalid currency code";
 
   Class<?>[] groups() default {};

@@ -14,20 +14,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/products")
-public class ProductController {
+class ProductController {
 
   private final CreateProductUseCase createProductUseCase;
   private final UpdateProductUseCase updateProductUseCase;
 
-  public ProductController(
+  ProductController(
       CreateProductUseCase createProductUseCase, UpdateProductUseCase updateProductUseCase) {
     this.createProductUseCase = createProductUseCase;
     this.updateProductUseCase = updateProductUseCase;
   }
 
   @PostMapping()
-  public ResponseEntity<ProductResponse> createProduct(
-      @Validated @RequestBody CreateProductRequest body) {
+  ResponseEntity<ProductResponse> createProduct(@Validated @RequestBody CreateProductRequest body) {
     var command =
         new CreateProductCommand(
             body.name(),
@@ -41,7 +40,7 @@ public class ProductController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ProductResponse> updateProduct(
+  ResponseEntity<ProductResponse> updateProduct(
       @PathVariable UUID id, @Validated @RequestBody UpdateProductRequest body) {
     var command =
         new UpdateProductCommand(
