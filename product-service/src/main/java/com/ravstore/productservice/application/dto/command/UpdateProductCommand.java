@@ -1,4 +1,4 @@
-package com.ravstore.productservice.application.dto;
+package com.ravstore.productservice.application.dto.command;
 
 import com.ravstore.productservice.domain.Money;
 import java.util.UUID;

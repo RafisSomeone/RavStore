@@ -14,4 +14,10 @@ public class InMemoryBusinessMetrics implements BusinessMetrics {
 
   @Override
   public void productUpdateFailIncrement() {}
+
+  @Override
+  public void productGetSuccessIncrement() {}
+
+  @Override
+  public void productGetFailIncrement() {}
 }

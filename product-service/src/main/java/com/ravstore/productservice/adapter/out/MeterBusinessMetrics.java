@@ -10,6 +10,8 @@ public class MeterBusinessMetrics implements BusinessMetrics {
   private final Counter productCreateFail;
   private final Counter productUpdateSuccess;
   private final Counter productUpdateFail;
+  private final Counter productGetSuccess;
+  private final Counter productGetFail;
 
   public MeterBusinessMetrics(MeterRegistry registry) {
     productCreateSuccess =
@@ -31,6 +33,15 @@ public class MeterBusinessMetrics implements BusinessMetrics {
         Counter.builder("rav.store.product-service.update.fail.count")
             .description("Number of failed product updates")
             .register(registry);
+
+    productGetSuccess =
+        Counter.builder("rav.store.product-service.get.success.count")
+            .description("Number of fetched products")
+            .register(registry);
+    productGetFail =
+        Counter.builder("rav.store.product-service.get.fail.count")
+            .description("Number of failed product fetches")
+            .register(registry);
   }
 
   @Override
@@ -51,5 +62,15 @@ public class MeterBusinessMetrics implements BusinessMetrics {
   @Override
   public void productUpdateFailIncrement() {
     productUpdateFail.increment();
+  }
+
+  @Override
+  public void productGetSuccessIncrement() {
+    productGetSuccess.increment();
+  }
+
+  @Override
+  public void productGetFailIncrement() {
+    productGetFail.increment();
   }
 }

@@ -30,4 +30,10 @@ public class InMemoryProductStorage implements ProductStorage {
     database.put(product.id(), product);
     return Optional.of(product);
   }
+
+  @Override
+  public Optional<Product> get(UUID id) {
+    var product = database.get(id);
+    return Optional.ofNullable(product);
+  }
 }

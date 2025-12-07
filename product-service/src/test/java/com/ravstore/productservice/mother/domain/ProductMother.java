@@ -1,6 +1,6 @@
-package com.ravstore.productservice.mother;
+package com.ravstore.productservice.mother.domain;
 
-import com.ravstore.productservice.application.dto.UpdateProductCommand;
+import com.ravstore.productservice.application.dto.command.UpdateProductCommand;
 import com.ravstore.productservice.domain.Money;
 import com.ravstore.productservice.domain.Product;
 import java.math.BigDecimal;

@@ -1,17 +1,16 @@
 package com.ravstore.productservice.application.ports.service;
 
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.ProductDraft;
+import com.ravstore.productservice.application.dto.command.CreateProductCommand;
 import com.ravstore.productservice.application.error.NotFound;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.usecase.ProductService;
 import com.ravstore.productservice.domain.Product;
-import com.ravstore.productservice.mother.ProductMother;
+import com.ravstore.productservice.mother.domain.ProductMother;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

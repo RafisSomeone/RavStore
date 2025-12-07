@@ -1,8 +1,10 @@
 package com.ravstore.productservice.adapter.in.web;
 
-import com.ravstore.productservice.application.dto.CreateProductCommand;
-import com.ravstore.productservice.application.dto.UpdateProductCommand;
+import com.ravstore.productservice.application.dto.command.CreateProductCommand;
+import com.ravstore.productservice.application.dto.command.UpdateProductCommand;
+import com.ravstore.productservice.application.dto.query.GetProductQuery;
 import com.ravstore.productservice.application.port.in.ProductHandler;
+import com.ravstore.productservice.application.port.in.ProductQueryHandler;
 import com.ravstore.productservice.domain.Money;
 import java.net.URI;
 import java.util.Currency;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 class ProductController {
 
   private final ProductHandler productHandler;
+  private final ProductQueryHandler queryHandler;
 
-  ProductController(ProductHandler productHandler) {
+  ProductController(ProductHandler productHandler, ProductQueryHandler queryHandler) {
     this.productHandler = productHandler;
+    this.queryHandler = queryHandler;
   }
 
   @PostMapping()
@@ -45,6 +49,16 @@ class ProductController {
             new Money(body.price().amount(), Currency.getInstance(body.price().currency())));
     return productHandler
         .update(command)
+        .fold(
+            error -> ResponseEntity.notFound().build(),
+            product -> ResponseEntity.ok(ProductResponse.from(product)));
+  }
+
+  @GetMapping("/{id}")
+  ResponseEntity<ProductResponse> getProduct(@PathVariable UUID id) {
+    var query = new GetProductQuery(id);
+    return queryHandler
+        .get(query)
         .fold(
             error -> ResponseEntity.notFound().build(),
             product -> ResponseEntity.ok(ProductResponse.from(product)));

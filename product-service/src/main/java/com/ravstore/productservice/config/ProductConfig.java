@@ -4,9 +4,11 @@ import com.ravstore.productservice.adapter.out.InMemoryProductStorage;
 import com.ravstore.productservice.adapter.out.MeterBusinessMetrics;
 import com.ravstore.productservice.adapter.out.MeterSystemMetrics;
 import com.ravstore.productservice.application.port.in.ProductHandler;
+import com.ravstore.productservice.application.port.in.ProductQueryHandler;
 import com.ravstore.productservice.application.port.out.BusinessMetrics;
 import com.ravstore.productservice.application.port.out.ProductStorage;
 import com.ravstore.productservice.application.port.out.SystemMetrics;
+import com.ravstore.productservice.application.usecase.ProductQueryService;
 import com.ravstore.productservice.application.usecase.ProductService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +18,7 @@ import org.springframework.context.annotation.Configuration;
 class ProductConfig {
 
   @Bean
-  ProductHandler productHandler(
-      ProductStorage productStorage, BusinessMetrics metricsService) {
+  ProductHandler productHandler(ProductStorage productStorage, BusinessMetrics metricsService) {
     return new ProductService(productStorage, metricsService);
   }
 
@@ -34,5 +35,10 @@ class ProductConfig {
   @Bean
   BusinessMetrics businessMetrics(MeterRegistry meterRegistry) {
     return new MeterBusinessMetrics(meterRegistry);
+  }
+
+  @Bean
+  ProductQueryHandler productQueryHandler(ProductStorage storage, BusinessMetrics metrics) {
+    return new ProductQueryService(storage, metrics);
   }
 }

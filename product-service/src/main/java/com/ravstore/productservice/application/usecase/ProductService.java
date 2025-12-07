@@ -1,8 +1,8 @@
 package com.ravstore.productservice.application.usecase;
 
-import com.ravstore.productservice.application.dto.CreateProductCommand;
 import com.ravstore.productservice.application.dto.ProductDraft;
-import com.ravstore.productservice.application.dto.UpdateProductCommand;
+import com.ravstore.productservice.application.dto.command.CreateProductCommand;
+import com.ravstore.productservice.application.dto.command.UpdateProductCommand;
 import com.ravstore.productservice.application.error.NotFound;
 import com.ravstore.productservice.application.error.UpdateProductError;
 import com.ravstore.productservice.application.port.in.ProductHandler;

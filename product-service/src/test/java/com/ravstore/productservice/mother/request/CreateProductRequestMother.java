@@ -1,4 +1,4 @@
-package com.ravstore.productservice.mother;
+package com.ravstore.productservice.mother.request;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

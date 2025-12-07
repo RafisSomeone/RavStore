@@ -7,9 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ravstore.productservice.configuration.ProductTestConfig;
-import com.ravstore.productservice.mother.CreateProductRequestMother;
-import com.ravstore.productservice.mother.ProductMother;
-import com.ravstore.productservice.mother.UpdateProductRequestMother;
+import com.ravstore.productservice.mother.domain.ProductMother;
+import com.ravstore.productservice.mother.request.CreateProductRequestMother;
+import com.ravstore.productservice.mother.request.UpdateProductRequestMother;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -61,7 +61,8 @@ class ProductControllerTest {
   }
 
   @ParameterizedTest(name = "{1}")
-  @MethodSource("com.ravstore.productservice.mother.CreateProductRequestMother#invalidRequest")
+  @MethodSource(
+      "com.ravstore.productservice.mother.request.CreateProductRequestMother#invalidRequest")
   void should_throw_400_if_invalid_create_request(String request, String caseName)
       throws Exception {
     createProduct(request).andExpect(status().isBadRequest());
@@ -95,7 +96,8 @@ class ProductControllerTest {
   }
 
   @ParameterizedTest(name = "{1}")
-  @MethodSource("com.ravstore.productservice.mother.UpdateProductRequestMother#invalidRequest")
+  @MethodSource(
+      "com.ravstore.productservice.mother.request.UpdateProductRequestMother#invalidRequest")
   void should_return_400_if_invalid_update_request(String request, String caseName)
       throws Exception {
     updateProduct(request, ProductMother.id().toString()).andExpect(status().isBadRequest());

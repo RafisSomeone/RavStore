@@ -8,4 +8,8 @@ public interface BusinessMetrics {
   void productUpdateSuccessIncrement();
 
   void productUpdateFailIncrement();
+
+  void productGetSuccessIncrement();
+
+  void productGetFailIncrement();
 }
