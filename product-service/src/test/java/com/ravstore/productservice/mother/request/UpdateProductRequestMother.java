@@ -1,5 +1,6 @@
 package com.ravstore.productservice.mother.request;
 
+import com.ravstore.productservice.mother.domain.ProductMother;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
@@ -17,13 +18,15 @@ public class UpdateProductRequestMother {
   }
 
   public static Stream<Arguments> invalidRequest() throws IOException {
+    var id = ProductMother.id().toString();
     return Stream.of(
-        Arguments.of(jsonRequest("blank-name-product.json"), "blank name"),
-        Arguments.of(jsonRequest("no-name-product.json"), "no name"),
-        Arguments.of(jsonRequest("no-price-product.json"), "no price"),
-        Arguments.of(jsonRequest("no-currency-product.json"), "no currency"),
-        Arguments.of(jsonRequest("invalid-currency-product.json"), "invalid currency"),
-        Arguments.of(jsonRequest("no-amount-product.json"), "no amount"),
-        Arguments.of(jsonRequest("negative-price-product.json"), "negative price"));
+        Arguments.of(jsonRequest("blank-name-product.json"), id, "blank name"),
+        Arguments.of(jsonRequest("no-name-product.json"), id, "no name"),
+        Arguments.of(jsonRequest("no-price-product.json"), id, "no price"),
+        Arguments.of(jsonRequest("no-currency-product.json"), id, "no currency"),
+        Arguments.of(jsonRequest("invalid-currency-product.json"), id, "invalid currency"),
+        Arguments.of(jsonRequest("no-amount-product.json"), id, "no amount"),
+        Arguments.of(jsonRequest("negative-price-product.json"), id, "negative price"),
+        Arguments.of(jsonRequest("product.json"), "notUUID", "Id is not UUID"));
   }
 }
