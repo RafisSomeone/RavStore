@@ -1,0 +1,100 @@
+buildscript {
+    dependencies {
+        classpath "org.flywaydb:flyway-database-postgresql:11.20.0"
+        classpath "org.postgresql:postgresql:42.7.4"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot'
+    id "org.jooq.jooq-codegen-gradle" version "3.20.10"
+    id "org.flywaydb.flyway" version "11.20.0"
+}
+
+ext["jooq.version"] = "3.20.10"
+
+description = 'product-service'
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation("org.springframework.boot:spring-boot-starter-jooq")
+    implementation("org.flywaydb:flyway-core:11.20.0")
+    implementation("org.flywaydb:flyway-database-postgresql:11.20.0")
+    implementation("org.postgresql:postgresql")
+
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
+
+    jooqCodegen "org.postgresql:postgresql"
+}
+
+def postgresPort = System.getenv("POSTGRES_PORT") ?: "5432"
+def postgresDb = System.getenv("POSTGRES_DB") ?: "ravstore"
+def postgresUser = System.getenv("POSTGRES_USER") ?: "ravstore"
+def postgresPassword = System.getenv("POSTGRES_PASSWORD") ?: ""
+
+flyway {
+    url      = "jdbc:postgresql://localhost:${postgresPort}/${postgresDb}"
+    user     = postgresUser
+    password = postgresPassword
+
+    locations = ["filesystem:src/main/resources/db/migration"]
+}
+
+def jooqGenDir = layout.projectDirectory.dir("src/main/generated/jooq")
+
+jooq {
+    configuration {
+        jdbc {
+            driver = "org.postgresql.Driver"
+            url = flyway.url
+            user = flyway.user
+            password = flyway.password
+        }
+
+        generator {
+            database {
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+                inputSchema = "public"
+                includes = ".*"
+            }
+
+            generate {
+                records = true
+                pojos = true
+                daos = false
+                javaTimeTypes = true
+            }
+
+            target {
+                packageName = "com.ravstore.productservice.jooq"
+                directory = jooqGenDir.asFile.absolutePath
+            }
+        }
+    }
+}
+
+spotless {
+    java {
+        targetExclude("src/main/generated/**")
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(jooqGenDir)
+        }
+    }
+}
+
+tasks.named("jooqCodegen") {
+    dependsOn(tasks.named("flywayMigrate"))
+    inputs.files(fileTree("src/main/resources/db/migration"))
+}
+
+tasks.named("bootBuildImage") {
+    imageName = "ravstore/product-service:local"
+    environment = ["BP_JVM_VERSION": "25"]
+}
