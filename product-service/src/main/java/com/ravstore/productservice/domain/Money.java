@@ -6,7 +6,6 @@ import java.util.Currency;
 import java.util.Objects;
 
 public record Money(BigDecimal amount, Currency currency) {
-  private static final int SCALE = 2;
 
   public Money {
     Objects.requireNonNull(amount, "amount must not be null");
@@ -15,6 +14,14 @@ public record Money(BigDecimal amount, Currency currency) {
     if (amount.compareTo(BigDecimal.ZERO) < 0)
       throw new IllegalArgumentException("amount must be non-negative");
 
-    amount = amount.setScale(SCALE, RoundingMode.HALF_EVEN);
+    amount = amount.setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN);
+  }
+
+  public long toMinor() {
+    return amount.movePointRight(currency.getDefaultFractionDigits()).longValueExact();
+  }
+
+  public static Money fromMinor(long minor, Currency currency) {
+    return new Money(BigDecimal.valueOf(minor, currency.getDefaultFractionDigits()), currency);
   }
 }

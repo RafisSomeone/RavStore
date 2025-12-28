@@ -1,6 +1,6 @@
 package com.ravstore.productservice.config;
 
-import com.ravstore.productservice.adapter.out.InMemoryProductStorage;
+import com.ravstore.productservice.adapter.out.JooqProductStorage;
 import com.ravstore.productservice.adapter.out.MeterBusinessMetrics;
 import com.ravstore.productservice.adapter.out.MeterSystemMetrics;
 import com.ravstore.productservice.application.port.in.ProductHandler;
@@ -11,6 +11,7 @@ import com.ravstore.productservice.application.port.out.SystemMetrics;
 import com.ravstore.productservice.application.usecase.ProductQueryService;
 import com.ravstore.productservice.application.usecase.ProductService;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.jooq.DSLContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,8 +24,8 @@ class ProductConfig {
   }
 
   @Bean
-  ProductStorage productStorage() {
-    return new InMemoryProductStorage();
+  ProductStorage productStorage(DSLContext dsl) {
+    return new JooqProductStorage(dsl);
   }
 
   @Bean
