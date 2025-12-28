@@ -21,7 +21,7 @@ subprojects {
     spotless {
         java {
             target "src/**/*.java"
-            googleJavaFormat("1.22.0")
+            googleJavaFormat("1.33.0")
             trimTrailingWhitespace()
             endWithNewline()
         }
